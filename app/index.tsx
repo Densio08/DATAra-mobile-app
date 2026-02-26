@@ -1,5 +1,5 @@
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import React, { useState } from "react";
 import {
   Dimensions,
@@ -55,7 +55,7 @@ export default function LoginScreen() {
                 </View>
                 <TextInput
                   style={styles.input}
-                  placeholder="+1 (555) 000-0000"
+                  placeholder="+63 912 345 6789"
                   placeholderTextColor="#64748b"
                   value={phoneNumber}
                   onChangeText={setPhoneNumber}
@@ -100,7 +100,7 @@ export default function LoginScreen() {
 
             {/* Actions */}
             <View style={styles.actionContainer}>
-              <TouchableOpacity style={styles.loginButton}>
+              <TouchableOpacity style={styles.loginButton} onPress={() => router.push({ pathname: '/dashboard', params: { phone: phoneNumber } } as any)}>
                 <Text style={styles.loginButtonText}>Log In</Text>
                 <MaterialIcons name="arrow-forward" size={18} color="white" />
               </TouchableOpacity>
@@ -116,7 +116,7 @@ export default function LoginScreen() {
                   <FontAwesome name="github" size={20} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.socialButton}>
-                  <FontAwesome name="apple" size={20} color="white" />
+                  <FontAwesome name="envelope" size={20} color="white" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -143,38 +143,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#101622",
-  },
-  backgroundMesh: {
-    ...StyleSheet.absoluteFillObject,
-    overflow: "hidden",
-  },
-  gradientOrb1: {
-    position: "absolute",
-    top: -100,
-    left: -100,
-    width: width * 0.8,
-    height: width * 0.8,
-    borderRadius: 999,
-    backgroundColor: "rgba(19, 91, 236, 0.15)", // Primary with low opacity
-    transform: [{ scale: 1.5 }],
-  },
-  gradientOrb2: {
-    position: "absolute",
-    top: 0,
-    right: -100,
-    width: width * 0.7,
-    height: width * 0.7,
-    borderRadius: 999,
-    backgroundColor: "rgba(19, 91, 236, 0.1)",
-  },
-  gradientOrb3: {
-    position: "absolute",
-    bottom: -50,
-    right: -50,
-    width: width,
-    height: width,
-    borderRadius: 999,
-    backgroundColor: "rgba(19, 91, 236, 0.05)",
   },
   scrollContent: {
     flexGrow: 1,
