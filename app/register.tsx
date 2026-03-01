@@ -3,6 +3,7 @@ import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Dimensions,
+  Image,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -28,6 +29,7 @@ export default function RegisterScreen() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#101622" />
 
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
 
         {/* Main Content */}
@@ -36,11 +38,11 @@ export default function RegisterScreen() {
           {/* Logo Section */}
           <View style={styles.logoSection}>
             <View style={styles.logoContainer}>
-              <MaterialIcons name="equalizer" size={48} color="#135bec" />
-              <View style={styles.logoPulse} />
+              <Image
+                source={require("../assets/images/public/DATAraNoText.png")}
+                style={styles.logoImage}
+              />
             </View>
-            <Text style={styles.appName}>DATAra</Text>
-            <Text style={styles.appTagline}>Create your account.</Text>
           </View>
 
           {/* Register Form */}
@@ -154,7 +156,7 @@ export default function RegisterScreen() {
           <View style={styles.footer}>
             <Text style={styles.footerText}>
               Already have an account?{" "}
-              <Link href="/" asChild>
+              <Link href="../../" asChild>
                 <Text style={styles.signUpText}>Log In</Text>
               </Link>
             </Text>
@@ -199,6 +201,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 15,
     elevation: 8, // Android shadow approximation
+  },
+  logoImage: {
+    width: 167,
+    height: 160,
+    borderRadius: 50,
+    shadowColor: "#1e3a8a",
+    shadowOffset: { width: 5, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 25,
+    elevation: 10,
   },
   logoPulse: {
     position: "absolute",

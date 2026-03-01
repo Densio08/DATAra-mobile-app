@@ -1,5 +1,5 @@
 import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import {
   SafeAreaView,
@@ -11,9 +11,9 @@ import {
   View
 } from 'react-native';
 
-import { BottomNavItem } from '../components/BottomNavItem';
-import { SmallCard } from '../components/SmallCard';
-import { StatItem } from '../components/StatItem';
+import { BottomNavItem } from '../../components/BottomNavItem';
+import { SmallCard } from '../../components/SmallCard';
+import { StatItem } from '../../components/StatItem';
 
 export default function DashboardScreen() {
   const { phone } = useLocalSearchParams();
@@ -186,19 +186,19 @@ export default function DashboardScreen() {
             iconName="history"
             label="HISTORY"
             isActive={activeTab === 'History'}
-            onPress={() => setActiveTab('History')}
+            onPress={() => router.push('/Tabs/history')}
           />
           <BottomNavItem
             iconName="settings"
             label="SETTINGS"
             isActive={activeTab === 'Settings'}
-            onPress={() => setActiveTab('Settings')}
+            onPress={() => router.push('/Tabs/settings')}
           />
           <BottomNavItem
             iconName="person-outline"
             label="PROFILE"
             isActive={activeTab === 'Profile'}
-            onPress={() => setActiveTab('Profile')}
+            onPress={() => router.push('/Tabs/profile')}
           />
         </View>
       </View>
