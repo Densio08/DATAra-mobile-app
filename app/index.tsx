@@ -14,6 +14,7 @@ import {
   View,
 } from "react-native";
 
+
 // Get screen dimensions for background positioning
 const { width, height } = Dimensions.get("window");
 
@@ -22,10 +23,34 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const handleLogin = () => {
+  if (!phoneNumber.trim() || !password.trim()) {
+    alert("Please fill in all fields.");
+    return;
+  }
+  // This looks for only digits. You can adjust the length (e.g., {10,11}) 
+  const phoneRegex = /^[0-9]+$/; 
+  
+  if (!phoneRegex.test(phoneNumber)) {
+    alert("Phone number must contain only numbers.");
+    return;
+  }
+
+  if (phoneNumber.length != 11) {
+    alert("Please enter a valid phone number.");
+    return;
+  }
+
+  // Success!
+  router.push({
+    pathname: "/Tabs/dashboard",
+    params: { phone: phoneNumber },
+  } as any);
+};
+ 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#101622" />
-
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Status Bar Mockup (Optional, but keeping consistent with design if desired, though real StatusBar is better) */}
@@ -54,7 +79,7 @@ export default function LoginScreen() {
                 </View>
                 <TextInput
                   style={styles.input}
-                  placeholder="+63 912 345 6789"
+                  placeholder="09 012 345 6789"
                   placeholderTextColor="#64748b"
                   value={phoneNumber}
                   onChangeText={setPhoneNumber}
@@ -105,12 +130,7 @@ export default function LoginScreen() {
             <View style={styles.actionContainer}>
               <TouchableOpacity
                 style={styles.loginButton}
-                onPress={() =>
-                  router.push({
-                    pathname: "/Tabs/dashboard",
-                    params: { phone: phoneNumber },
-                  } as any)
-                }
+                onPress={handleLogin}
               >
                 <Text style={styles.loginButtonText}>Log In</Text>
                 <MaterialIcons name="arrow-forward" size={18} color="white" />
@@ -155,8 +175,17 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
+    marginTop: "5%",
+    paddingTop: "2%",
     justifyContent: "center",
+    width: 500,
+    Height: "80%",
+    alignSelf: "center",
+    backgroundColor: "rgba(10, 16, 22, 0.1)",
+    borderWidth: 2,
+    borderColor: "rgba(184, 184, 185, 0.3)",
+    borderRadius: 30,
+     shadowColor: "#1e3a8a", // blue-900
   },
   contentContainer: {
     paddingVertical: 32,
@@ -170,7 +199,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 25,
     elevation: 10,
-
   },
 
   logoSection: {
@@ -215,8 +243,13 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   formContainer: {
-    width: "100%",
+    width: 350,
     gap: 20,
+    borderRadius: 20,
+    paddingVertical: 25,
+    paddingHorizontal: 20,
+    justifyContent: "center",
+    alignSelf: "center",
   },
   inputGroup: {
     gap: 6,

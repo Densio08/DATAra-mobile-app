@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { router, Stack } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import {
     SafeAreaView,
@@ -14,59 +14,61 @@ import {
 import { BottomNavItem } from '../../components/BottomNavItem';
 
 export default function SettingsScreen() {
+    const { phone } = useLocalSearchParams();
     const [pushEnabled, setPushEnabled] = useState(true);
 
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor="#0d1320" />
             <Stack.Screen options={{ headerShown: false }} />
-
+            <View style={styles.topCard}> 
             {/* Settings List */}
-            <View style={styles.listContainer}>
-                {/* Manage Profile */}
-                <TouchableOpacity style={styles.row}>
-                    <MaterialIcons name="person-outline" size={28} color="white" style={styles.rowIcon} />
-                    <Text style={styles.rowText}>Manage Profile</Text>
-                </TouchableOpacity>
+                <View style={styles.listContainer}>
+                    {/* Manage Profile */}
+                    <TouchableOpacity style={styles.row}>
+                        <MaterialIcons name="person-outline" size={28} color="white" style={styles.rowIcon} />
+                        <Text style={styles.rowText}>Manage Profile</Text>
+                    </TouchableOpacity>
 
-                {/* Password and Security */}
-                <TouchableOpacity style={styles.row}>
-                    <MaterialIcons name="lock-outline" size={28} color="white" style={styles.rowIcon} />
-                    <Text style={styles.rowText}>Password and Security</Text>
-                </TouchableOpacity>
+                    {/* Password and Security */}
+                    <TouchableOpacity style={styles.row}>
+                        <MaterialIcons name="lock-outline" size={28} color="white" style={styles.rowIcon} />
+                        <Text style={styles.rowText}>Password and Security</Text>
+                    </TouchableOpacity>
 
-                {/* Push Notification */}
-                <View style={styles.row}>
-                    <MaterialIcons name="notifications-none" size={28} color="white" style={styles.rowIcon} />
-                    <Text style={[styles.rowText, { flex: 1 }]}>Push Notification</Text>
-                    <Switch
-                        value={pushEnabled}
-                        onValueChange={setPushEnabled}
-                        trackColor={{ false: '#475569', true: '#22c55e' }}
-                        thumbColor="white"
-                    />
+                    {/* Push Notification */}
+                    <View style={styles.row}>
+                        <MaterialIcons name="notifications-none" size={28} color="white" style={styles.rowIcon} />
+                        <Text style={[styles.rowText, { flex: 1 }]}>Push Notification</Text>
+                        <Switch
+                            value={pushEnabled}
+                            onValueChange={setPushEnabled}
+                            trackColor={{ false: '#475569', true: '#22c55e' }}
+                            thumbColor="white"
+                        />
+                    </View>
+
+                    {/* Log Out */}
+                    <TouchableOpacity
+                        style={styles.logoutButton}
+                        onPress={() => router.replace('/')}
+                    >
+                        <Text style={styles.logoutText}>Log Out</Text>
+                    </TouchableOpacity>
                 </View>
 
-                {/* Log Out */}
-                <TouchableOpacity
-                    style={styles.logoutButton}
-                    onPress={() => router.replace('/')}
-                >
-                    <Text style={styles.logoutText}>Log Out</Text>
-                </TouchableOpacity>
-            </View>
-
-            {/* Bottom Navigation */}
-            <View style={styles.bottomNavContainer}>
-                <View style={styles.bottomNavWrapper}>
-                    <BottomNavItem iconName="home" label="HOME" isActive={false}
-                        onPress={() => router.push('/Tabs/dashboard')} />
-                    <BottomNavItem iconName="history" label="HISTORY" isActive={false}
-                        onPress={() => router.push('/Tabs/history')} />
-                    <BottomNavItem iconName="settings" label="SETTINGS" isActive={true}
-                        onPress={() => { }} />
-                    <BottomNavItem iconName="person-outline" label="PROFILE" isActive={false}
-                        onPress={() => router.push('/Tabs/profile')} />
+                {/* Bottom Navigation */}
+                <View style={styles.bottomNavContainer}>
+                    <View style={styles.bottomNavWrapper}>
+                        <BottomNavItem iconName="home" label="HOME" isActive={false}
+                            onPress={() => router.push({ pathname: '/Tabs/dashboard', params: { phone } })} />
+                        <BottomNavItem iconName="history" label="HISTORY" isActive={false}
+                            onPress={() => router.push({ pathname: '/Tabs/history', params: { phone } })} />
+                        <BottomNavItem iconName="settings" label="SETTINGS" isActive={true}
+                            onPress={() => { }} />
+                        <BottomNavItem iconName="person-outline" label="PROFILE" isActive={false}
+                            onPress={() => router.push({ pathname: '/Tabs/profile', params: { phone } })} />
+                    </View>
                 </View>
             </View>
         </SafeAreaView>
@@ -76,7 +78,20 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#e2e8f0',
+    },
+    topCard:{
+        flexGrow: 1,
+        justifyContent: "center",
+        width: 500,
+        marginTop:"1%",
+        maxHeight: "95%",
+        alignSelf: "center",
         backgroundColor: '#0d1320',
+        borderWidth: 2,
+        borderColor: "rgba(184, 184, 185, 0.3)",
+        borderRadius: 30,
+        shadowColor: "#1e3a8a", // blue-900
     },
     listContainer: {
         flex: 1,
@@ -118,7 +133,7 @@ const styles = StyleSheet.create({
     },
     bottomNavContainer: {
         position: 'absolute',
-        bottom: 30,
+        bottom: 20,
         left: 20,
         right: 20,
         alignItems: 'center',
@@ -130,7 +145,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 20,
         justifyContent: 'space-between',
-        width: '100%',
+        width: '60%',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.1,

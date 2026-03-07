@@ -20,63 +20,57 @@ export default function ProfileScreen() {
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor="#0d1320" />
             <Stack.Screen options={{ headerShown: false }} />
+            <View style={styles.topCard}>    
+                <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-
-                {/* Avatar */}
-                <View style={styles.avatarSection}>
-                    <View style={styles.avatarCircle}>
-                        {/* Placeholder avatar — swap with real image when ready */}
-                        <View style={styles.avatarInner}>
-                            <MaterialIcons name="person" size={72} color="#94a3b8" />
+                    {/* Avatar */}
+                    <View style={styles.avatarSection}>
+                        <View style={styles.avatarCircle}>
+                            {/* Placeholder avatar — swap with real image when ready */}
+                            <View style={styles.avatarInner}>
+                                <MaterialIcons name="person" size={72} color="#94a3b8" />
+                            </View>
                         </View>
                     </View>
-                </View>
 
-                {/* E-SIM Badge */}
-                <View style={styles.esimRow}>
-                    <View style={styles.esimBadge}>
-                        <Text style={styles.esimText}>E-SIM</Text>
-                    </View>
-                    <Text style={styles.phoneNumber}>{phone || '+6308312035'}</Text>
-                    <MaterialIcons name="keyboard-arrow-down" size={20} color="white" />
-                </View>
-
-                {/* Info Boxes */}
-                <View style={styles.infoContainer}>
-                    <View style={styles.infoBox}>
-                        <Text style={styles.infoText}>Charlie C. Omongos</Text>
+                    {/* E-SIM Badge */}
+                    <View style={styles.esimRow}>
+                        <View style={styles.esimBadge}>
+                            <Text style={styles.esimText}>E-SIM</Text>
+                        </View>
+                        <Text style={styles.phoneNumber}>{phone ? `+${phone}` : '+63 08312035'}</Text>
+                        <MaterialIcons name="keyboard-arrow-down" size={20} color="white" />
                     </View>
 
-                    <View style={styles.infoBox}>
-                        <Text style={styles.infoText}>Zone 13 B, Puli, Carmen, CDO</Text>
+                    {/* Info Boxes */}
+                    <View style={styles.infoContainer}>
+                        <View style={styles.infoBox}>
+                            <Text style={styles.infoText}>Charlie C. Omongos</Text>
+                        </View>
+
+                        <View style={styles.infoBox}>
+                            <Text style={styles.infoText}>Zone 13 B, Puli, Carmen, CDO</Text>
+                        </View>
+
+                        <View style={styles.infoBox}>
+                            <Text style={styles.infoText}>DESU</Text>
+                        </View>
                     </View>
 
-                    <View style={styles.infoBox}>
-                        <Text style={styles.infoText}>DESU</Text>
+                </ScrollView>
+
+                {/* Bottom Navigation */}
+                <View style={styles.bottomNavContainer}>
+                    <View style={styles.bottomNavWrapper}>
+                        <BottomNavItem iconName="home" label="HOME" isActive={false}
+                            onPress={() => router.push({ pathname: '/Tabs/dashboard', params: { phone } })} />
+                        <BottomNavItem iconName="history" label="HISTORY" isActive={false}
+                            onPress={() => router.push({ pathname: '/Tabs/history', params: { phone } })} />
+                        <BottomNavItem iconName="settings" label="SETTINGS" isActive={false}
+                            onPress={() => router.push({ pathname: '/Tabs/settings', params: { phone } })} />
+                        <BottomNavItem iconName="person-outline" label="PROFILE" isActive={true}
+                            onPress={() => { }} />
                     </View>
-                </View>
-
-                {/* Log Out */}
-                <TouchableOpacity
-                    style={styles.logoutButton}
-                    onPress={() => router.replace('/')}
-                >
-                    <Text style={styles.logoutText}>Log Out</Text>
-                </TouchableOpacity>
-            </ScrollView>
-
-            {/* Bottom Navigation */}
-            <View style={styles.bottomNavContainer}>
-                <View style={styles.bottomNavWrapper}>
-                    <BottomNavItem iconName="home" label="HOME" isActive={false}
-                        onPress={() => router.push('/Tabs/dashboard')} />
-                    <BottomNavItem iconName="history" label="HISTORY" isActive={false}
-                        onPress={() => router.push('/Tabs/history')} />
-                    <BottomNavItem iconName="settings" label="SETTINGS" isActive={false}
-                        onPress={() => router.push('/Tabs/settings')} />
-                    <BottomNavItem iconName="person-outline" label="PROFILE" isActive={true}
-                        onPress={() => { }} />
                 </View>
             </View>
         </SafeAreaView>
@@ -86,7 +80,20 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#e2e8f0',
+    },
+    topCard:{
+        flexGrow: 1,
+        justifyContent: "center",
+        width: 500,
+        marginTop:"1%",
+        maxHeight: "95%",
+        alignSelf: "center",
         backgroundColor: '#0d1320',
+        borderWidth: 2,
+        borderColor: "rgba(184, 184, 185, 0.3)",
+        borderRadius: 30,
+        shadowColor: "#1e3a8a", // blue-900
     },
     scrollContent: {
         paddingTop: 40,
@@ -153,25 +160,9 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: '600',
     },
-    logoutButton: {
-        backgroundColor: '#dc2626',
-        paddingVertical: 14,
-        paddingHorizontal: 48,
-        borderRadius: 30,
-        shadowColor: '#dc2626',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.4,
-        shadowRadius: 8,
-        elevation: 6,
-    },
-    logoutText: {
-        color: 'white',
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
     bottomNavContainer: {
         position: 'absolute',
-        bottom: 30,
+        bottom: 20,
         left: 20,
         right: 20,
         alignItems: 'center',
@@ -183,7 +174,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 20,
         justifyContent: 'space-between',
-        width: '100%',
+        width: '60%',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.1,

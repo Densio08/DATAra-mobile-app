@@ -144,10 +144,10 @@ const styles = StyleSheet.create({
     },
     barColumn: {
         alignItems: 'center',
-        width: (width - 120) / 7,
+        width: 350 / 7,
     },
     bar: {
-        width: '100%',
+        width: 50,
         backgroundColor: '#1e1b4b',
         borderTopLeftRadius: 2,
         borderTopRightRadius: 2,

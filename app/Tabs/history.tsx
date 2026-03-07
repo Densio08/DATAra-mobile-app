@@ -43,123 +43,95 @@ export default function HistoryScreen() {
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor="#101622" />
             <Stack.Screen options={{ headerShown: false }} />
+            <View style={styles.topCard}>   
+                <View style={styles.scrollContent}>
+                    {/* Main Usage Card - same size as dashboard */}
+                    <View style={styles.mainCard}>
 
-            {/* Header Area Background */}
-            <View style={styles.headerBackground}>
-                {/* Top Navigation */}
-                <View style={styles.topNav}>
-                    <View style={styles.esimBadge}>
-                        <Text style={styles.esimText}>E-SIM</Text>
-                        <Text style={styles.phoneNumber}>{phone || '+6308312035'}</Text>
-                        <MaterialIcons name="keyboard-arrow-down" size={20} color="white" />
-                    </View>
-                    <View style={styles.profileSection}>
-                        <MaterialIcons name="notifications-none" size={28} color="white" style={{ marginRight: 12 }} />
-                        <View style={styles.avatarContainer}>
-                            <View style={styles.avatarPlaceholder}>
-                                <Text style={styles.avatarText}>C</Text>
+                        {/* Circular Chart Placeholder */}
+                        <View style={styles.chartContainer}>
+                            <View style={[styles.circleOuter, { borderColor: paceConfig.chartColor }]}>
+                                <View style={styles.circleInner}>
+                                    <Text style={styles.circleTextMain}>{paceConfig.percent}</Text>
+                                </View>
                             </View>
                         </View>
-                    </View>
-                </View>
 
-                {/* Greeting */}
-                <View style={styles.greetingContainer}>
-                    <Text style={styles.greetingText}>
-                        Hi <Text style={styles.greetingName}>Malunggay Pandesal!</Text>
-                    </Text>
-                    <Text style={styles.subtitleText}>This is your usage history</Text>
-                </View>
-            </View>
-
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                {/* Main Usage Card - same size as dashboard */}
-                <View style={styles.mainCard}>
-
-                    {/* Circular Chart Placeholder */}
-                    <View style={styles.chartContainer}>
-                        <View style={[styles.circleOuter, { borderColor: paceConfig.chartColor }]}>
-                            <View style={styles.circleInner}>
-                                <Text style={styles.circleTextMain}>{paceConfig.percent}</Text>
-                            </View>
+                        {/* Stats Row */}
+                        <View style={styles.statsRow}>
+                            <StatItem
+                                icon="keyboard-double-arrow-up"
+                                iconColor="white"
+                                iconBgColor="#16a34a"
+                                label="Total Used"
+                                value="7 GB"
+                                subValue="OUT OF 14 GB"
+                            />
+                            <StatItem
+                                icon="schedule"
+                                iconColor="white"
+                                iconBgColor="#2563eb"
+                                label="Predicted"
+                                value="8hrs"
+                                subValue="LEFT"
+                            />
+                            <StatItem
+                                icon="trending-up"
+                                iconColor="white"
+                                iconBgColor="#2563eb"
+                                label="Daily Avg"
+                                value="1.5 GB"
+                                subValue="PER DAY"
+                            />
                         </View>
-                    </View>
 
-                    {/* Stats Row */}
-                    <View style={styles.statsRow}>
-                        <StatItem
-                            icon="keyboard-double-arrow-up"
-                            iconColor="white"
-                            iconBgColor="#16a34a"
-                            label="Total Used"
-                            value="7 GB"
-                            subValue="OUT OF 14 GB"
-                        />
-                        <StatItem
-                            icon="schedule"
-                            iconColor="white"
-                            iconBgColor="#2563eb"
-                            label="Predicted"
-                            value="8hrs"
-                            subValue="LEFT"
-                        />
-                        <StatItem
-                            icon="trending-up"
-                            iconColor="white"
-                            iconBgColor="#2563eb"
-                            label="Daily Avg"
-                            value="1.5 GB"
-                            subValue="PER DAY"
-                        />
-                    </View>
+                        {/* Usage Pace Button */}
+                        <TouchableOpacity
+                            style={[styles.paceButton, { backgroundColor: paceConfig.buttonColor, shadowColor: paceConfig.buttonColor }]}
+                        >
+                            <MaterialIcons name="calendar-today" size={20} color="white" />
+                            <Text style={styles.paceButtonText}>
+                                {paceConfig.text}
+                            </Text>
+                        </TouchableOpacity>
 
-                    {/* Usage Pace Button */}
-                    <TouchableOpacity
-                        style={[styles.paceButton, { backgroundColor: paceConfig.buttonColor, shadowColor: paceConfig.buttonColor }]}
-                    >
-                        <MaterialIcons name="calendar-today" size={20} color="white" />
-                        <Text style={styles.paceButtonText}>
-                            {paceConfig.text}
-                        </Text>
-                    </TouchableOpacity>
+                        {/* Details Card — reusable component, swap barData from DB when ready */}
+                        <DetailsCard
+                            barData={barData}
+                            timeFilter={timeFilter}
+                            onTimeFilterChange={setTimeFilter}
+                        />
+                    </View>                   
                 </View>
 
-                {/* Details Card — reusable component, swap barData from DB when ready */}
-                <DetailsCard
-                    barData={barData}
-                    timeFilter={timeFilter}
-                    onTimeFilterChange={setTimeFilter}
-                />
-            </ScrollView>
-
-
-            {/* Bottom Navigation Wrapper fixed at bottom */}
-            <View style={styles.bottomNavContainer}>
-                <View style={styles.bottomNavWrapper}>
-                    <BottomNavItem
-                        iconName="home"
-                        label="HOME"
-                        isActive={activeTab === 'Home'}
-                        onPress={() => router.push('/Tabs/dashboard')}
-                    />
-                    <BottomNavItem
-                        iconName="history"
-                        label="HISTORY"
-                        isActive={activeTab === 'History'}
-                        onPress={() => { }}
-                    />
-                    <BottomNavItem
-                        iconName="settings"
-                        label="SETTINGS"
-                        isActive={activeTab === 'Settings'}
-                        onPress={() => router.push('/Tabs/settings' as any)}
-                    />
-                    <BottomNavItem
-                        iconName="person-outline"
-                        label="PROFILE"
-                        isActive={activeTab === 'Profile'}
-                        onPress={() => router.push('/Tabs/profile' as any)}
-                    />
+                {/* Bottom Navigation Wrapper fixed at bottom */}
+                <View style={styles.bottomNavContainer}>
+                    <View style={styles.bottomNavWrapper}>
+                        <BottomNavItem
+                            iconName="home"
+                            label="HOME"
+                            isActive={activeTab === 'Home'}
+                            onPress={() => router.push({ pathname: '/Tabs/dashboard', params: { phone } })}
+                        />
+                        <BottomNavItem
+                            iconName="history"
+                            label="HISTORY"
+                            isActive={activeTab === 'History'}
+                            onPress={() => { }}
+                        />
+                        <BottomNavItem
+                            iconName="settings"
+                            label="SETTINGS"
+                            isActive={activeTab === 'Settings'}
+                            onPress={() => router.push({ pathname: '/Tabs/settings', params: { phone } })}
+                        />
+                        <BottomNavItem
+                            iconName="person-outline"
+                            label="PROFILE"
+                            isActive={activeTab === 'Profile'}
+                            onPress={() => router.push({ pathname: '/Tabs/profile', params: { phone } })}
+                        />
+                    </View>
                 </View>
             </View>
         </SafeAreaView>
@@ -169,12 +141,25 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#101622',
+        backgroundColor: '#e2e8f0',
+    },
+    topCard:{
+        flexGrow: 1,
+        justifyContent: "center",
+        width: 500,
+        marginTop:"1%",
+        maxHeight: "95%",
+        alignSelf: "center",
+        backgroundColor: '#0d1320',
+        borderWidth: 2,
+        borderColor: "rgba(184, 184, 185, 0.3)",
+        borderRadius: 30,
+        shadowColor: "#1e3a8a", // blue-900
     },
     scrollContent: {
         paddingTop: 190,
         paddingHorizontal: 20,
-        paddingBottom: 110,
+        paddingBottom: 150,
     },
     headerBackground: {
         backgroundColor: '#101622',
@@ -271,6 +256,7 @@ const styles = StyleSheet.create({
         shadowRadius: 20,
         elevation: 8,
         marginBottom: 20,
+        bottom: 42,
     },
 
     chartContainer: {
@@ -342,7 +328,7 @@ const styles = StyleSheet.create({
     },
     bottomNavContainer: {
         position: 'absolute',
-        bottom: 30,
+        bottom: 20,
         left: 20,
         right: 20,
         alignItems: 'center',
@@ -354,7 +340,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 20,
         justifyContent: 'space-between',
-        width: '100%',
+        width: '60%',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.1,

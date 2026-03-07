@@ -29,7 +29,6 @@ export default function RegisterScreen() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#101622" />
 
-
       <ScrollView contentContainerStyle={styles.scrollContent}>
 
         {/* Main Content */}
@@ -178,6 +177,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     justifyContent: 'center',
     zIndex: 1,
+    marginTop: "5%",
+    paddingTop: "2%",
+    width: 500,
+    maxHeight: "85%",
+    alignSelf: "center",
+    backgroundColor: "rgba(10, 16, 22, 0.1)",
+    borderWidth: 2,
+    borderColor: "rgba(184, 184, 185, 0.3)",
+    borderRadius: 30,
+     shadowColor: "#1e3a8a", // blue-900
   },
   contentContainer: {
     paddingVertical: 32,
@@ -234,8 +243,13 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   formContainer: {
-    width: "100%",
+    width: 350,
     gap: 20,
+    borderRadius: 20,
+    paddingVertical: 25,
+    paddingHorizontal: 20,
+    justifyContent: "center",
+    alignSelf: "center",
   },
   inputGroup: {
     gap: 6,
@@ -337,8 +351,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   footer: {
-    marginTop: 24,
     alignItems: "center",
+    marginBottom:12,
   },
   footerText: {
     fontSize: 14,
