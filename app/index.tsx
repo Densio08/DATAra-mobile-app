@@ -3,6 +3,7 @@ import { Link, router } from "expo-router";
 import React, { useState } from "react";
 import {
   Dimensions,
+  Image,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -10,8 +11,9 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
+
 
 // Get screen dimensions for background positioning
 const { width, height } = Dimensions.get("window");
@@ -21,31 +23,53 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const handleLogin = () => {
+  if (!phoneNumber.trim() || !password.trim()) {
+    alert("Please fill in all fields.");
+    return;
+  }
+  // This looks for only digits. You can adjust the length (e.g., {10,11}) 
+  const phoneRegex = /^[0-9]+$/; 
+  
+  if (!phoneRegex.test(phoneNumber)) {
+    alert("Phone number must contain only numbers.");
+    return;
+  }
+
+  if (phoneNumber.length != 11) {
+    alert("Please enter a valid phone number.");
+    return;
+  }
+
+  // Success!
+  router.push({
+    pathname: "/Tabs/dashboard",
+    params: { phone: phoneNumber },
+  } as any);
+};
+ 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#101622" />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-
         {/* Status Bar Mockup (Optional, but keeping consistent with design if desired, though real StatusBar is better) */}
         {/* We rely on the real StatusBar above, but add padding for consistent look */}
 
         {/* Main Content */}
         <View style={styles.contentContainer}>
-
           {/* Logo Section */}
           <View style={styles.logoSection}>
             <View style={styles.logoContainer}>
-              <MaterialIcons name="equalizer" size={48} color="#135bec" />
-              <View style={styles.logoPulse} />
+              <Image
+                source={require("../assets/images/public/DATAraNoText.png")}
+                style={styles.logoImage}
+              />
             </View>
-            <Text style={styles.appName}>DATAra</Text>
-            <Text style={styles.appTagline}>Predict your usage.</Text>
           </View>
 
           {/* Login Form */}
           <View style={styles.formContainer}>
-
             {/* Phone Number Input */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Phone Number</Text>
@@ -55,7 +79,7 @@ export default function LoginScreen() {
                 </View>
                 <TextInput
                   style={styles.input}
-                  placeholder="+63 912 345 6789"
+                  placeholder="09 012 345 6789"
                   placeholderTextColor="#64748b"
                   value={phoneNumber}
                   onChangeText={setPhoneNumber}
@@ -69,13 +93,17 @@ export default function LoginScreen() {
             <View style={styles.inputGroup}>
               <View style={styles.passwordHeader}>
                 <Text style={styles.label}>Password</Text>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push("/Auth/forgot-password" as any)}>
                   <Text style={styles.forgotPassword}>Forgot Password?</Text>
                 </TouchableOpacity>
               </View>
               <View style={styles.inputWrapper}>
                 <View style={styles.inputIconContainer}>
-                  <MaterialIcons name="lock-outline" size={20} color="#64748b" />
+                  <MaterialIcons
+                    name="lock-outline"
+                    size={20}
+                    color="#64748b"
+                  />
                 </View>
                 <TextInput
                   style={styles.input}
@@ -100,7 +128,10 @@ export default function LoginScreen() {
 
             {/* Actions */}
             <View style={styles.actionContainer}>
-              <TouchableOpacity style={styles.loginButton} onPress={() => router.push({ pathname: '/dashboard', params: { phone: phoneNumber } } as any)}>
+              <TouchableOpacity
+                style={styles.loginButton}
+                onPress={handleLogin}
+              >
                 <Text style={styles.loginButtonText}>Log In</Text>
                 <MaterialIcons name="arrow-forward" size={18} color="white" />
               </TouchableOpacity>
@@ -120,19 +151,17 @@ export default function LoginScreen() {
                 </TouchableOpacity>
               </View>
             </View>
-
           </View>
 
           {/* Footer */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>
               Don't have an account?{" "}
-              <Link href="/register" asChild>
+              <Link href="../register" asChild>
                 <Text style={styles.signUpText}>Sign Up</Text>
               </Link>
             </Text>
           </View>
-
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -146,12 +175,32 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    justifyContent: 'center',
+    marginTop: "5%",
+    paddingTop: "2%",
+    justifyContent: "center",
+    width: 500,
+    Height: "80%",
+    alignSelf: "center",
+    backgroundColor: "rgba(10, 16, 22, 0.1)",
+    borderWidth: 2,
+    borderColor: "rgba(184, 184, 185, 0.3)",
+    borderRadius: 30,
+     shadowColor: "#1e3a8a", // blue-900
   },
   contentContainer: {
     paddingVertical: 32,
   },
+  logoImage: {
+    width: 167,
+    height: 160,
+    borderRadius: 50,
+    shadowColor: "#1e3a8a", // blue-900
+    shadowOffset: { width: 5, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 25,
+    elevation: 10,
+  },
+
   logoSection: {
     alignItems: "center",
     marginBottom: 40,
@@ -194,8 +243,13 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   formContainer: {
-    width: "100%",
+    width: 350,
     gap: 20,
+    borderRadius: 20,
+    paddingVertical: 25,
+    paddingHorizontal: 20,
+    justifyContent: "center",
+    alignSelf: "center",
   },
   inputGroup: {
     gap: 6,
@@ -284,7 +338,7 @@ const styles = StyleSheet.create({
   socialGrid: {
     flexDirection: "row",
     gap: 12,
-    justifyContent: 'center', // Or distribute? HTML used grid-cols-2
+    justifyContent: "center", // Or distribute? HTML used grid-cols-2
   },
   socialButton: {
     flex: 1,

@@ -3,6 +3,7 @@ import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Dimensions,
+  Image,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -24,6 +25,23 @@ export default function RegisterScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Added submission handler for state and navigation logic
+  const handleRegister = () => {
+    if (!phoneNumber.trim() || !password.trim() || !confirmPassword.trim()) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
+    // Meaningful UI Update / Navigation upon form submission
+    alert("Registration successful! Please log in.");
+    router.replace("/");
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#101622" />
@@ -36,11 +54,11 @@ export default function RegisterScreen() {
           {/* Logo Section */}
           <View style={styles.logoSection}>
             <View style={styles.logoContainer}>
-              <MaterialIcons name="equalizer" size={48} color="#135bec" />
-              <View style={styles.logoPulse} />
+              <Image
+                source={require("../assets/images/public/DATAraNoText.png")}
+                style={styles.logoImage}
+              />
             </View>
-            <Text style={styles.appName}>DATAra</Text>
-            <Text style={styles.appTagline}>Create your account.</Text>
           </View>
 
           {/* Register Form */}
@@ -127,7 +145,8 @@ export default function RegisterScreen() {
 
             {/* Actions */}
             <View style={styles.actionContainer}>
-              <TouchableOpacity style={styles.loginButton}>
+              {/* Linked handleRegister to onPress */}
+              <TouchableOpacity style={styles.loginButton} onPress={handleRegister}>
                 <Text style={styles.loginButtonText}>Sign Up</Text>
                 <MaterialIcons name="arrow-forward" size={18} color="white" />
               </TouchableOpacity>
@@ -154,7 +173,7 @@ export default function RegisterScreen() {
           <View style={styles.footer}>
             <Text style={styles.footerText}>
               Already have an account?{" "}
-              <Link href="/" asChild>
+              <Link href="../../" asChild>
                 <Text style={styles.signUpText}>Log In</Text>
               </Link>
             </Text>
@@ -176,6 +195,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     justifyContent: 'center',
     zIndex: 1,
+    marginTop: "5%",
+    paddingTop: "2%",
+    width: 500,
+    maxHeight: "85%",
+    alignSelf: "center",
+    backgroundColor: "rgba(10, 16, 22, 0.1)",
+    borderWidth: 2,
+    borderColor: "rgba(184, 184, 185, 0.3)",
+    borderRadius: 30,
+     shadowColor: "#1e3a8a", // blue-900
   },
   contentContainer: {
     paddingVertical: 32,
@@ -200,6 +229,16 @@ const styles = StyleSheet.create({
     shadowRadius: 15,
     elevation: 8, // Android shadow approximation
   },
+  logoImage: {
+    width: 167,
+    height: 160,
+    borderRadius: 50,
+    shadowColor: "#1e3a8a",
+    shadowOffset: { width: 5, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 25,
+    elevation: 10,
+  },
   logoPulse: {
     position: "absolute",
     top: -4,
@@ -222,8 +261,13 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   formContainer: {
-    width: "100%",
+    width: 350,
     gap: 20,
+    borderRadius: 20,
+    paddingVertical: 25,
+    paddingHorizontal: 20,
+    justifyContent: "center",
+    alignSelf: "center",
   },
   inputGroup: {
     gap: 6,
@@ -325,8 +369,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   footer: {
-    marginTop: 24,
     alignItems: "center",
+    marginBottom:12,
   },
   footerText: {
     fontSize: 14,
