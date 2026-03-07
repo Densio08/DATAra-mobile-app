@@ -25,6 +25,23 @@ export default function RegisterScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Added submission handler for state and navigation logic
+  const handleRegister = () => {
+    if (!phoneNumber.trim() || !password.trim() || !confirmPassword.trim()) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
+    // Meaningful UI Update / Navigation upon form submission
+    alert("Registration successful! Please log in.");
+    router.replace("/");
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#101622" />
@@ -128,7 +145,8 @@ export default function RegisterScreen() {
 
             {/* Actions */}
             <View style={styles.actionContainer}>
-              <TouchableOpacity style={styles.loginButton}>
+              {/* Linked handleRegister to onPress */}
+              <TouchableOpacity style={styles.loginButton} onPress={handleRegister}>
                 <Text style={styles.loginButtonText}>Sign Up</Text>
                 <MaterialIcons name="arrow-forward" size={18} color="white" />
               </TouchableOpacity>
