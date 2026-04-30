@@ -1,33 +1,60 @@
-# --- Python / Django (Backend) ---
-backend/venv/
-backend/__pycache__/
-backend/*/__pycache__/
-backend/db.sqlite3
-backend/.env
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+node_modules/
+.env
+
+# Expo
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+app-example
+
+# generated native folders
+/ios
+/android
+
+# Expo internal folders
+.expo/
+*.local
+
+# SQLite (since DATAra utilizes local storage)
+*.db
+*.sqlite
+*.sqlite3
+
+# Python leftovers (from the old integrated structure)
+__pycache__/
 *.py[cod]
 *$py.class
 venv/
-__pycache__/
-*.pyc
-db.sqlite3
-
-# --- Node / Expo (Frontend) ---
-frontend/node_modules/
-node_modules/
-frontend/.expo/
-frontend/dist/
-frontend/npm-debug.log*
-frontend/yarn-error.log*
-
-# --- Environment Variables ---
-.env
-.env.local
-frontend/.env
-
-# --- OS Specific ---
-.DS_Store
-Thumbs.db
-
-# --- IDEs ---
-.vscode/
-.idea/
+ENV/

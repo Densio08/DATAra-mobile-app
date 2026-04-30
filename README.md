@@ -1,66 +1,50 @@
-# 📊 DATAra: Mobile Data Usage Tracker
+# Welcome to your Expo app 👋
 
-**DATAra** is an intelligent Android application designed for monitoring mobile data consumption. This project integrates a **Django REST Framework** backend with an **Expo (React Native)** frontend to provide a seamless user experience for tracking and managing data.
+This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
----
+## Get started
 
-## 📂 Project Architecture
+1. Install dependencies
 
-The system follows a **Monorepo** structure, separating the server-side logic from the mobile client.
+   ```bash
+   npm install
+   ```
 
-*   **`backend/`**: Django REST Framework API handling authentication and user data.
-*   **`frontend/`**: React Native (Expo) mobile application with file-based routing.
-*   **`context/`**: Global state management for user sessions.
+2. Start the app
 
----
+   ```bash
+   npx expo start
+   ```
 
-## 🚀 Getting Started
+In the output, you'll find options to open the app in a
 
-Follow these steps to synchronize the backend and frontend on your local machine.
+- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
+- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
+- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-### 1️⃣ Backend Setup (Django)
-1.  **Navigate to the directory**: `cd backend`
-2.  **Initialize Environment**:
-    *   Create: `python -m venv venv`
-    *   Activate (Windows): `.\venv\Scripts\activate`
-3.  **Install Dependencies**:
-    ```bash
-    pip install django django-rest-framework django-cors-headers
-    ```
-4.  **Database Setup**: `python manage.py migrate`
-5.  **Run Server**: `python manage.py runserver 0.0.0.0:8000`
+You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-### 2️⃣ Frontend Setup (Expo)
-1.  **Navigate to the directory**: `cd frontend`
-2.  **Install Packages**: `npm install`
-3.  **Configure Environment**: Create a `.env` file in the `frontend/` folder:
-    ```env
-    EXPO_PUBLIC_API_URL=http://<your-machine-ip>:8000
-    ```
-4.  **Launch App**: `npx expo start -c`
+## Get a fresh project
 
----
+When you're ready, run:
 
-## 🛠️ Mandatory Configurations
+```bash
+npm run reset-project
+```
 
-To ensure the system communicates correctly across your local network, verify these settings:
+This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-*   **🌐 IP Address**: Your `EXPO_PUBLIC_API_URL` must use your computer's actual IPv4 address (found via `ipconfig`). (Still working to dynamic this)
-*   **🛡️ Firewall**: Port **8000** must be allowed through Windows Defender Firewall to permit mobile connections.
-*   **📡 CORS**: The `backend/core/settings.py` must include `corsheaders` in both `INSTALLED_APPS` and `MIDDLEWARE`.
+## Learn more
 
----
+To learn more about developing your project with Expo, look at the following resources:
 
-## 🧪 Technology Stack
+- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
+- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
-*   **Mobile**: React Native & Expo Router (File-based routing)
-*   **API**: Django REST Framework (Token Authentication)
-*   **Database**: SQLite (Development)
-*   **Icons**: FontAwesome5 & MaterialIcons
+## Join the community
 
----
+Join our community of developers creating universal apps.
 
-
-
-> [!TIP]
-> **Pro-tip**: Always restart the Expo server with the `-c` flag after changing your `.env` file to ensure the new IP address is recognized.
+- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
+- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
