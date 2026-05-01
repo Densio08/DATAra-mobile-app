@@ -64,7 +64,7 @@ export default function LoginScreen() {
         router.replace("/Tabs/dashboard"); 
       } else {
         // 4. Handle 401 Unauthorized
-        Alert.alert("Login Failed", "Invalid phone number or password.");
+        Alert.alert("Login Failed", data.error || "Invalid phone number or password.");
       }
     } catch (error: any) {
       // 5. Network Error[cite: 1]
