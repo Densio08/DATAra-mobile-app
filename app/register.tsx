@@ -1,5 +1,5 @@
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
-import { Link, useRouter } from "expo-router";
+import { Link, router } from "expo-router";
 import React, { useState } from "react";
 import {
   Dimensions,
@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
   Alert,
+  Platform,
 } from "react-native";
 import { useUser } from "../context/UserContext";
 import { API_BASE_URL } from "../constants/Config";
@@ -21,7 +22,6 @@ import { API_BASE_URL } from "../constants/Config";
 const { width, height } = Dimensions.get("window");
 
 export default function RegisterScreen() {
-  const router = useRouter();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -55,16 +55,21 @@ export default function RegisterScreen() {
       const data = await response.json();
 
       if (response.ok) {
-        // Use the callback in Alert to ensure state/nav happens only after user clicks OK
-        Alert.alert("Success", "Registration successful!", [
-          { 
-            text: "OK", 
-            onPress: () => {
-              setPhone(phoneNumber); 
-              router.replace("/");   
-            } 
-          }
-        ]);
+        if (Platform.OS === "web") {
+          window.alert("Registration successful!");
+          setPhone(phoneNumber);
+          window.location.href = "/";
+        } else {
+          Alert.alert("Success", "Registration successful!", [
+            {
+              text: "OK",
+              onPress: () => {
+                setPhone(phoneNumber);
+                router.replace("/");
+              },
+            },
+          ]);
+        }
       } else {
         let errorMessage = "Please try again.";
         if (data.username) errorMessage = "Number already exists";
