@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
   Alert,
+  Platform,
 } from "react-native";
 import { useUser } from "../context/UserContext";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -31,12 +32,14 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     // 1. Validation Logic
     if (!phoneNumber.trim() || !password.trim()) {
-      Alert.alert("Error", "Please fill in all fields.");
+      if (Platform.OS === 'web') window.alert("Please fill in all fields.");
+      else Alert.alert("Error", "Please fill in all fields.");
       return;
     }
 
     if (phoneNumber.length !== 11) {
-      Alert.alert("Error", "Please enter a valid 11-digit phone number.");
+      if (Platform.OS === 'web') window.alert("Please enter a valid 11-digit phone number.");
+      else Alert.alert("Error", "Please enter a valid 11-digit phone number.");
       return;
     }
 
@@ -64,12 +67,15 @@ export default function LoginScreen() {
         router.replace("/Tabs/dashboard"); 
       } else {
         // 4. Handle 401 Unauthorized
-        Alert.alert("Login Failed", data.error || "Invalid phone number or password.");
+        const errorMsg = data.error || "Invalid phone number or password.";
+        if (Platform.OS === 'web') window.alert(errorMsg);
+        else Alert.alert("Login Failed", errorMsg);
       }
     } catch (error: any) {
       // 5. Network Error[cite: 1]
       console.error("Login Error:", error);
-      Alert.alert("Network Error", "Cannot reach server. Verify your IP in .env.");
+      if (Platform.OS === 'web') window.alert("Cannot reach server. Verify your IP in .env.");
+      else Alert.alert("Network Error", "Cannot reach server. Verify your IP in .env.");
     }
   };
 
