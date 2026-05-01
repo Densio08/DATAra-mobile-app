@@ -52,6 +52,12 @@ export default function SettingsScreen() {
                 Alert.alert("Success", "Account deleted successfully", [
                     { text: "OK", onPress: () => router.replace('/') }
                 ]);
+            } else if (res.status === 401) {
+                await AsyncStorage.removeItem('userToken');
+                setDeleteModalVisible(false);
+                Alert.alert("Session Expired", "Please log in again.", [
+                    { text: "OK", onPress: () => router.replace('/') }
+                ]);
             } else {
                 Alert.alert("Error", "Failed to delete account");
             }
