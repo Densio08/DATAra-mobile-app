@@ -11,6 +11,7 @@ import {
     TouchableOpacity,
     View,
     ActivityIndicator,
+    Modal,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -22,12 +23,20 @@ export default function ProfileScreen() {
     const { phone } = useUser();
     const [activeTab, setActiveTab] = useState('Profile');
     
-    // Auth Token (Task 6 preparation)
+    // Auth Token
     const [token, setToken] = useState<string | null>(null);
 
     // Profile State
     const [profile, setProfile] = useState<any>(null);
-    const [loading, setLoading] = useState(false);
+    const [loadingName, setLoadingName] = useState(false);
+    const [loadingAddress, setLoadingAddress] = useState(false);
+
+    // Modals visibility
+    const [isNameModalVisible, setNameModalVisible] = useState(false);
+    const [isAddressModalVisible, setAddressModalVisible] = useState(false);
+
+    // Edit states
+    const [editName, setEditName] = useState('');
 
     // Address Dropdown States
     const [regions, setRegions] = useState<any[]>([]);
@@ -45,11 +54,25 @@ export default function ProfileScreen() {
     const handleProfile = () => router.replace('/Tabs/profile');
 
     useEffect(() => {
-        const loadToken = async () => {
+        const loadTokenAndProfile = async () => {
             const storedToken = await AsyncStorage.getItem('userToken');
-            if (storedToken) setToken(storedToken);
+            if (storedToken) {
+                setToken(storedToken);
+                try {
+                    const res = await fetch('http://127.0.0.1:8000/api/profile/', {
+                        headers: { 'Authorization': `Token ${storedToken}` }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        setProfile(data);
+                        setEditName(data.username || '');
+                    }
+                } catch (e) {
+                    console.error("Failed to load profile", e);
+                }
+            }
         };
-        loadToken();
+        loadTokenAndProfile();
         fetchRegions();
     }, []);
 
@@ -106,17 +129,9 @@ export default function ProfileScreen() {
         }
     };
 
-    const handleSaveProfile = async () => {
-        // Construct full address
-        const regionName = regions.find(r => r.code === selectedRegion)?.name || '';
-        const cityName = cities.find(c => c.code === selectedCity)?.name || '';
-        const brgyName = barangays.find(b => b.code === selectedBarangay)?.name || '';
-        
-        const fullAddress = `${streetAddress}, ${brgyName}, ${cityName}, ${regionName}`.replace(/^, | ,/g, '').trim();
-        
+    const updateBackendProfile = async (payload: any, setLoading: (b: boolean) => void, onSuccess: () => void) => {
         setLoading(true);
         try {
-            // Note: This relies on Task 6 (Auth) being fully completed. For now we use the token if available.
             const headers: any = {
                 'Content-Type': 'application/json',
             };
@@ -127,19 +142,49 @@ export default function ProfileScreen() {
             const response = await fetch('http://127.0.0.1:8000/api/profile/', {
                 method: 'PUT',
                 headers,
-                body: JSON.stringify({
-                    address: fullAddress,
-                }),
+                body: JSON.stringify(payload),
             });
             const data = await response.json();
-            console.log("Saved directly to backend database:", data);
-            alert("Profile saved successfully!");
+            
+            if (response.ok) {
+                setProfile(data); // Reflect changes immediately
+                onSuccess();
+            } else {
+                alert("Failed to update profile.");
+                console.error(data);
+            }
         } catch (error) {
             console.error("Error saving profile:", error);
-            alert("Failed to save profile. Make sure backend is running and you are authenticated.");
+            alert("Network error.");
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleSaveName = () => {
+        if (!editName.trim()) {
+            alert("Name cannot be empty.");
+            return;
+        }
+        updateBackendProfile(
+            { username: editName },
+            setLoadingName,
+            () => setNameModalVisible(false)
+        );
+    };
+
+    const handleSaveAddress = () => {
+        const regionName = regions.find(r => r.code === selectedRegion)?.name || '';
+        const cityName = cities.find(c => c.code === selectedCity)?.name || '';
+        const brgyName = barangays.find(b => b.code === selectedBarangay)?.name || '';
+        
+        const fullAddress = `${streetAddress}, ${brgyName}, ${cityName}, ${regionName}`.replace(/^, | ,/g, '').trim();
+        
+        updateBackendProfile(
+            { address: fullAddress },
+            setLoadingAddress,
+            () => setAddressModalVisible(false)
+        );
     };
 
     return (
@@ -148,7 +193,6 @@ export default function ProfileScreen() {
             <Stack.Screen options={{ headerShown: false }} />
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-
                 {/* Avatar */}
                 <View style={styles.avatarSection}>
                     <View style={styles.avatarCircle}>
@@ -163,116 +207,120 @@ export default function ProfileScreen() {
                     <View style={styles.esimBadge}>
                         <Text style={styles.esimText}>E-SIM</Text>
                     </View>
-                    <Text style={styles.phoneNumber}>{phone ? `+${phone}` : '+63 08312035'}</Text>
+                    <Text style={styles.phoneNumber}>{profile?.phone_number || phone ? `+${profile?.phone_number || phone}` : '+63 08312035'}</Text>
                     <MaterialIcons name="keyboard-arrow-down" size={20} color="white" />
                 </View>
 
-                {/* Address Form Container */}
-                <View style={styles.formContainer}>
-                    <Text style={styles.sectionTitle}>Update Address</Text>
-                    
-                    <Text style={styles.label}>Region</Text>
-                    <View style={styles.pickerContainer}>
-                        <Picker
-                            selectedValue={selectedRegion}
-                            onValueChange={onRegionChange}
-                            style={styles.picker}
-                            dropdownIconColor="white"
-                        >
-                            <Picker.Item label="Select Region" value="" color="#94a3b8" />
-                            {regions.map((region) => (
-                                <Picker.Item key={region.code} label={region.name} value={region.code} color="#0f172a" />
-                            ))}
-                        </Picker>
-                    </View>
-
-                    <Text style={styles.label}>City/Municipality</Text>
-                    <View style={styles.pickerContainer}>
-                        <Picker
-                            selectedValue={selectedCity}
-                            onValueChange={onCityChange}
-                            style={styles.picker}
-                            enabled={cities.length > 0}
-                            dropdownIconColor="white"
-                        >
-                            <Picker.Item label="Select City/Municipality" value="" color="#94a3b8" />
-                            {cities.map((city) => (
-                                <Picker.Item key={city.code} label={city.name} value={city.code} color="#0f172a" />
-                            ))}
-                        </Picker>
-                    </View>
-
-                    <Text style={styles.label}>Barangay</Text>
-                    <View style={styles.pickerContainer}>
-                        <Picker
-                            selectedValue={selectedBarangay}
-                            onValueChange={(val) => setSelectedBarangay(val)}
-                            style={styles.picker}
-                            enabled={barangays.length > 0}
-                            dropdownIconColor="white"
-                        >
-                            <Picker.Item label="Select Barangay" value="" color="#94a3b8" />
-                            {barangays.map((brgy) => (
-                                <Picker.Item key={brgy.code} label={brgy.name} value={brgy.code} color="#0f172a" />
-                            ))}
-                        </Picker>
-                    </View>
-
-                    <Text style={styles.label}>Street Address</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="House/Unit No., Street Name"
-                        placeholderTextColor="#94a3b8"
-                        value={streetAddress}
-                        onChangeText={setStreetAddress}
-                    />
-
-                    {/* Save Button */}
-                    <TouchableOpacity
-                        style={styles.saveButton}
-                        onPress={handleSaveProfile}
-                        disabled={loading}
-                    >
-                        {loading ? (
-                            <ActivityIndicator color="white" />
-                        ) : (
-                            <Text style={styles.saveText}>Save Profile</Text>
-                        )}
+                {/* Info Boxes */}
+                <View style={styles.infoContainer}>
+                    <TouchableOpacity style={styles.infoBox} onPress={() => setNameModalVisible(true)}>
+                        <Text style={styles.infoText}>{profile?.username || 'Charlie C. Omongos'}</Text>
+                        <MaterialIcons name="edit" size={20} color="#64748b" style={styles.editIcon} />
                     </TouchableOpacity>
-                </View>
 
-                {/* Log Out button removed as requested */}
+                    <TouchableOpacity style={styles.infoBox} onPress={() => setAddressModalVisible(true)}>
+                        <Text style={styles.infoText}>{profile?.address || 'Zone 13 B, Puli, Carmen, CDO'}</Text>
+                        <MaterialIcons name="edit" size={20} color="#64748b" style={styles.editIcon} />
+                    </TouchableOpacity>
+
+                    <View style={styles.infoBox}>
+                        <Text style={styles.infoText}>{profile?.provider || 'DESU'}</Text>
+                    </View>
+                </View>
             </ScrollView>
 
             {/* Bottom Navigation */}
             <View style={styles.bottomNavContainer}>
                 <View style={styles.bottomNavWrapper}>
-                    <BottomNavItem 
-                        iconName="home" 
-                        label="HOME" 
-                        isActive={activeTab === 'Home'}
-                        onPress={handleHome}
-                    />
-                    <BottomNavItem 
-                        iconName="history" 
-                        label="HISTORY" 
-                        isActive={activeTab === 'History'}
-                        onPress={handleHistory} 
-                    />
-                    <BottomNavItem 
-                        iconName="settings" 
-                        label="SETTINGS" 
-                        isActive={activeTab === 'Settings'}
-                        onPress={handleSettings} 
-                    />
-                    <BottomNavItem 
-                        iconName="person-outline" 
-                        label="PROFILE" 
-                        isActive={activeTab === 'Profile'}
-                        onPress={handleProfile} 
-                    />
+                    <BottomNavItem iconName="home" label="HOME" isActive={activeTab === 'Home'} onPress={handleHome}/>
+                    <BottomNavItem iconName="history" label="HISTORY" isActive={activeTab === 'History'} onPress={handleHistory} />
+                    <BottomNavItem iconName="settings" label="SETTINGS" isActive={activeTab === 'Settings'} onPress={handleSettings} />
+                    <BottomNavItem iconName="person-outline" label="PROFILE" isActive={activeTab === 'Profile'} onPress={handleProfile} />
                 </View>
             </View>
+
+            {/* Name Edit Modal */}
+            <Modal visible={isNameModalVisible} transparent={true} animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Edit Name</Text>
+                        <TextInput
+                            style={styles.modalInput}
+                            value={editName}
+                            onChangeText={setEditName}
+                            placeholder="Enter your name"
+                            placeholderTextColor="#94a3b8"
+                        />
+                        <View style={styles.modalActions}>
+                            <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={() => setNameModalVisible(false)}>
+                                <Text style={styles.modalButtonText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.modalButton, styles.saveButton]} onPress={handleSaveName} disabled={loadingName}>
+                                {loadingName ? <ActivityIndicator color="white" /> : <Text style={styles.modalButtonText}>Save</Text>}
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Address Edit Modal */}
+            <Modal visible={isAddressModalVisible} transparent={true} animationType="slide">
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, styles.addressModal]}>
+                        <Text style={styles.modalTitle}>Update Address</Text>
+                        
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            <Text style={styles.label}>Region</Text>
+                            <View style={styles.pickerContainer}>
+                                <Picker selectedValue={selectedRegion} onValueChange={onRegionChange} style={styles.picker} dropdownIconColor="#0f172a">
+                                    <Picker.Item label="Select Region" value="" color="#94a3b8" />
+                                    {regions.map((region) => (
+                                        <Picker.Item key={region.code} label={region.name} value={region.code} color="#0f172a" />
+                                    ))}
+                                </Picker>
+                            </View>
+
+                            <Text style={styles.label}>City/Municipality</Text>
+                            <View style={styles.pickerContainer}>
+                                <Picker selectedValue={selectedCity} onValueChange={onCityChange} style={styles.picker} enabled={cities.length > 0} dropdownIconColor="#0f172a">
+                                    <Picker.Item label="Select City/Municipality" value="" color="#94a3b8" />
+                                    {cities.map((city) => (
+                                        <Picker.Item key={city.code} label={city.name} value={city.code} color="#0f172a" />
+                                    ))}
+                                </Picker>
+                            </View>
+
+                            <Text style={styles.label}>Barangay</Text>
+                            <View style={styles.pickerContainer}>
+                                <Picker selectedValue={selectedBarangay} onValueChange={(val) => setSelectedBarangay(val)} style={styles.picker} enabled={barangays.length > 0} dropdownIconColor="#0f172a">
+                                    <Picker.Item label="Select Barangay" value="" color="#94a3b8" />
+                                    {barangays.map((brgy) => (
+                                        <Picker.Item key={brgy.code} label={brgy.name} value={brgy.code} color="#0f172a" />
+                                    ))}
+                                </Picker>
+                            </View>
+
+                            <Text style={styles.label}>Street Address</Text>
+                            <TextInput
+                                style={styles.modalInput}
+                                placeholder="House/Unit No., Street Name"
+                                placeholderTextColor="#94a3b8"
+                                value={streetAddress}
+                                onChangeText={setStreetAddress}
+                            />
+                        </ScrollView>
+
+                        <View style={styles.modalActions}>
+                            <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={() => setAddressModalVisible(false)}>
+                                <Text style={styles.modalButtonText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.modalButton, styles.saveButton]} onPress={handleSaveAddress} disabled={loadingAddress}>
+                                {loadingAddress ? <ActivityIndicator color="white" /> : <Text style={styles.modalButtonText}>Save</Text>}
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -331,60 +379,28 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         marginRight: 4,
     },
-    formContainer: {
+    infoContainer: {
         width: '100%',
-        backgroundColor: '#1e293b',
-        borderRadius: 16,
-        padding: 20,
-        marginBottom: 20,
+        gap: 12,
+        marginBottom: 40,
     },
-    sectionTitle: {
-        color: 'white',
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 20,
-    },
-    label: {
-        color: '#cbd5e1',
-        fontSize: 14,
-        marginBottom: 8,
-        fontWeight: '500',
-    },
-    pickerContainer: {
+    infoBox: {
         backgroundColor: '#e2e8f0',
         borderRadius: 12,
-        marginBottom: 16,
-        overflow: 'hidden',
-    },
-    picker: {
-        height: 50,
-        width: '100%',
-        color: '#0f172a',
-    },
-    input: {
-        backgroundColor: '#e2e8f0',
-        color: '#0f172a',
-        height: 50,
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        marginBottom: 24,
-        fontSize: 15,
-    },
-    saveButton: {
-        backgroundColor: '#3b82f6',
-        paddingVertical: 14,
-        borderRadius: 30,
+        paddingVertical: 18,
+        paddingHorizontal: 20,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        shadowColor: '#3b82f6',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.4,
-        shadowRadius: 8,
-        elevation: 6,
     },
-    saveText: {
-        color: 'white',
-        fontWeight: 'bold',
-        fontSize: 16,
+    infoText: {
+        color: '#0f172a',
+        fontSize: 15,
+        fontWeight: '600',
+        flex: 1,
+    },
+    editIcon: {
+        marginLeft: 10,
     },
     bottomNavContainer: {
         position: 'absolute',
@@ -406,5 +422,83 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 20,
         elevation: 10,
+    },
+    // Modal Styles
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+    },
+    modalContent: {
+        width: '100%',
+        backgroundColor: '#1e293b',
+        borderRadius: 16,
+        padding: 24,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 5,
+    },
+    addressModal: {
+        maxHeight: '80%',
+    },
+    modalTitle: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+    modalInput: {
+        backgroundColor: '#e2e8f0',
+        color: '#0f172a',
+        height: 50,
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        marginBottom: 24,
+        fontSize: 15,
+    },
+    modalActions: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 10,
+    },
+    modalButton: {
+        flex: 1,
+        paddingVertical: 14,
+        borderRadius: 30,
+        alignItems: 'center',
+        marginHorizontal: 5,
+    },
+    cancelButton: {
+        backgroundColor: '#64748b',
+    },
+    saveButton: {
+        backgroundColor: '#3b82f6',
+    },
+    modalButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+    label: {
+        color: '#cbd5e1',
+        fontSize: 14,
+        marginBottom: 8,
+        fontWeight: '500',
+    },
+    pickerContainer: {
+        backgroundColor: '#e2e8f0',
+        borderRadius: 12,
+        marginBottom: 16,
+        overflow: 'hidden',
+    },
+    picker: {
+        height: 50,
+        width: '100%',
+        color: '#0f172a',
     },
 });
