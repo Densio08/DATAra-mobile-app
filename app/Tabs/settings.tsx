@@ -9,25 +9,58 @@ import {
     Text,
     TouchableOpacity,
     View,
+    Modal,
+    ActivityIndicator,
+    Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { BottomNavItem } from '../../components/BottomNavItem';
 
 export default function SettingsScreen() {
     const [pushEnabled, setPushEnabled] = useState(true);
-    const [activeTab, setActiveTab] = useState('Home');
+    const [activeTab, setActiveTab] = useState('Settings');
 
-    const handleHistory =()=>
-        router.push('/Tabs/history')
-    
-    const handleHome =()=>
-        router.push('/Tabs/dashboard')
-    
-    const handleSetting =()=>
-            router.replace('/Tabs/settings')
+    // Delete Modal State
+    const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
-    const handleProfile =()=>
-        router.push('/Tabs/profile')
+    const handleHistory =()=> router.push('/Tabs/history');
+    const handleHome =()=> router.push('/Tabs/dashboard');
+    const handleSetting =()=> router.replace('/Tabs/settings');
+    const handleProfile =()=> router.push('/Tabs/profile');
+
+    const handleLogOut = async () => {
+        await AsyncStorage.removeItem('userToken');
+        router.replace('/');
+    };
+
+    const handleDeleteAccount = async () => {
+        setIsDeleting(true);
+        try {
+            const storedToken = await AsyncStorage.getItem('userToken');
+            const res = await fetch('http://127.0.0.1:8000/api/profile/', {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Token ${storedToken}`
+                }
+            });
+
+            if (res.ok) {
+                await AsyncStorage.removeItem('userToken');
+                setDeleteModalVisible(false);
+                Alert.alert("Success", "Account deleted successfully", [
+                    { text: "OK", onPress: () => router.replace('/') }
+                ]);
+            } else {
+                Alert.alert("Error", "Failed to delete account");
+            }
+        } catch (e) {
+            Alert.alert("Error", "Network error. Make sure the backend is running.");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -37,7 +70,7 @@ export default function SettingsScreen() {
             {/* Settings List */}
             <View style={styles.listContainer}>
                 {/* Manage Profile */}
-                <TouchableOpacity style={styles.row} onPress={handleSetting}>
+                <TouchableOpacity style={styles.row} onPress={handleProfile}>
                     <MaterialIcons name="person-outline" size={28} color="white" style={styles.rowIcon} />
                     <Text style={styles.rowText}>Manage Profile</Text>
                 </TouchableOpacity>
@@ -60,10 +93,16 @@ export default function SettingsScreen() {
                     />
                 </View>
 
+                {/* Delete Account */}
+                <TouchableOpacity style={styles.row} onPress={() => setDeleteModalVisible(true)}>
+                    <MaterialIcons name="delete-outline" size={28} color="#f87171" style={styles.rowIcon} />
+                    <Text style={[styles.rowText, { color: '#f87171' }]}>Delete Account</Text>
+                </TouchableOpacity>
+
                 {/* Log Out */}
                 <TouchableOpacity
                     style={styles.logoutButton}
-                    onPress={() => router.replace('/')}
+                    onPress={handleLogOut}
                 >
                     <Text style={styles.logoutText}>Log Out</Text>
                 </TouchableOpacity>
@@ -98,6 +137,27 @@ export default function SettingsScreen() {
                     />
                 </View>
             </View>
+
+            {/* Delete Account Confirmation Modal */}
+            <Modal visible={isDeleteModalVisible} transparent={true} animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <MaterialIcons name="warning" size={48} color="#f87171" style={{ alignSelf: 'center', marginBottom: 16 }} />
+                        <Text style={styles.modalTitle}>Delete Account?</Text>
+                        <Text style={styles.modalMessage}>
+                            This action will permanently disable your account. You will no longer have access and cannot create a new account with the same phone number.
+                        </Text>
+                        <View style={styles.modalActions}>
+                            <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={() => setDeleteModalVisible(false)} disabled={isDeleting}>
+                                <Text style={styles.modalButtonText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.modalButton, styles.deleteButton]} onPress={handleDeleteAccount} disabled={isDeleting}>
+                                {isDeleting ? <ActivityIndicator color="white" /> : <Text style={styles.modalButtonText}>Confirm</Text>}
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -130,11 +190,11 @@ const styles = StyleSheet.create({
     logoutButton: {
         marginTop: 60,
         alignSelf: 'center',
-        backgroundColor: '#dc2626',
+        backgroundColor: '#475569',
         paddingVertical: 14,
         paddingHorizontal: 48,
         borderRadius: 30,
-        shadowColor: '#dc2626',
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.4,
         shadowRadius: 8,
@@ -165,5 +225,60 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 20,
         elevation: 10,
+    },
+    // Modal Styles
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+    },
+    modalContent: {
+        width: '100%',
+        backgroundColor: '#1e293b',
+        borderRadius: 16,
+        padding: 24,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 5,
+    },
+    modalTitle: {
+        color: 'white',
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 12,
+        textAlign: 'center',
+    },
+    modalMessage: {
+        color: '#cbd5e1',
+        fontSize: 15,
+        textAlign: 'center',
+        marginBottom: 24,
+        lineHeight: 22,
+    },
+    modalActions: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    modalButton: {
+        flex: 1,
+        paddingVertical: 14,
+        borderRadius: 30,
+        alignItems: 'center',
+        marginHorizontal: 5,
+    },
+    cancelButton: {
+        backgroundColor: '#64748b',
+    },
+    deleteButton: {
+        backgroundColor: '#dc2626',
+    },
+    modalButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 16,
     },
 });
