@@ -13,6 +13,7 @@ import {
     ActivityIndicator,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { BottomNavItem } from '../../components/BottomNavItem';
 import { useUser } from '../../context/UserContext';
@@ -44,9 +45,12 @@ export default function ProfileScreen() {
     const handleProfile = () => router.replace('/Tabs/profile');
 
     useEffect(() => {
+        const loadToken = async () => {
+            const storedToken = await AsyncStorage.getItem('userToken');
+            if (storedToken) setToken(storedToken);
+        };
+        loadToken();
         fetchRegions();
-        // Since we might not have the token properly stored yet, we skip fetching real profile if no token
-        // In a real flow (after Task 6), we get the token from SecureStore or context
     }, []);
 
     const fetchRegions = async () => {

@@ -14,8 +14,8 @@ import {
   View,
   Alert,
 } from "react-native";
-
 import { useUser } from "../context/UserContext";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from "../constants/Config";
 
 // Get screen dimensions for background positioning
@@ -58,6 +58,7 @@ export default function LoginScreen() {
       if (response.ok) {
         // 3. Success Handling[cite: 1]
         setPhone(phoneNumber); // Set global state[cite: 1]
+        await AsyncStorage.setItem('userToken', data.token);
         
         // Ensure the path matches your app/Tabs/dashboard.tsx structure[cite: 1]
         router.replace("/Tabs/dashboard"); 
