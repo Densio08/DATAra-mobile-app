@@ -12,10 +12,12 @@ import {
     Modal,
     ActivityIndicator,
     Alert,
+    Platform
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { BottomNavItem } from '../../components/BottomNavItem';
+import { API_BASE_URL } from '../../constants/Config';
 
 export default function SettingsScreen() {
     const [pushEnabled, setPushEnabled] = useState(true);
@@ -39,7 +41,7 @@ export default function SettingsScreen() {
         setIsDeleting(true);
         try {
             const storedToken = await AsyncStorage.getItem('userToken');
-            const res = await fetch('http://127.0.0.1:8000/api/profile/', {
+            const res = await fetch(`${API_BASE_URL}/api/profile/`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Token ${storedToken}`
@@ -49,20 +51,32 @@ export default function SettingsScreen() {
             if (res.ok) {
                 await AsyncStorage.removeItem('userToken');
                 setDeleteModalVisible(false);
-                Alert.alert("Success", "Account deleted successfully", [
-                    { text: "OK", onPress: () => router.replace('/') }
-                ]);
+                if (Platform.OS === 'web') {
+                    window.alert("Account deleted successfully");
+                    router.replace('/');
+                } else {
+                    Alert.alert("Success", "Account deleted successfully", [
+                        { text: "OK", onPress: () => router.replace('/') }
+                    ]);
+                }
             } else if (res.status === 401) {
                 await AsyncStorage.removeItem('userToken');
                 setDeleteModalVisible(false);
-                Alert.alert("Session Expired", "Please log in again.", [
-                    { text: "OK", onPress: () => router.replace('/') }
-                ]);
+                if (Platform.OS === 'web') {
+                    window.alert("Session Expired. Please log in again.");
+                    router.replace('/');
+                } else {
+                    Alert.alert("Session Expired", "Please log in again.", [
+                        { text: "OK", onPress: () => router.replace('/') }
+                    ]);
+                }
             } else {
-                Alert.alert("Error", "Failed to delete account");
+                if (Platform.OS === 'web') window.alert("Failed to delete account");
+                else Alert.alert("Error", "Failed to delete account");
             }
         } catch (e) {
-            Alert.alert("Error", "Network error. Make sure the backend is running.");
+            if (Platform.OS === 'web') window.alert("Network error. Make sure the backend is running.");
+            else Alert.alert("Error", "Network error. Make sure the backend is running.");
         } finally {
             setIsDeleting(false);
         }
