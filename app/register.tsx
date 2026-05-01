@@ -66,7 +66,11 @@ export default function RegisterScreen() {
           }
         ]);
       } else {
-        Alert.alert("Registration Failed", data.username ? "Number already exists" : "Please try again.");
+        let errorMessage = "Please try again.";
+        if (data.username) errorMessage = "Number already exists";
+        else if (data.password) errorMessage = data.password[0];
+        else if (data.phone_number) errorMessage = data.phone_number[0];
+        Alert.alert("Registration Failed", errorMessage);
       }
     } catch (error: any) {
       Alert.alert("Network Error", "Cannot reach server: " + error.message);
