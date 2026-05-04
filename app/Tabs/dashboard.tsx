@@ -1,6 +1,6 @@
 import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
-import { router, Stack, useLocalSearchParams } from 'expo-router';
-import React, { useState } from 'react';
+import { router, Stack } from 'expo-router';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -8,15 +8,23 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 
 import { BottomNavItem } from '../../components/BottomNavItem';
 import { SmallCard } from '../../components/SmallCard';
 import { StatItem } from '../../components/StatItem';
+import { useUser } from '../../context/UserContext';
 
 export default function DashboardScreen() {
-  const { phone } = useLocalSearchParams();
+  const { phone } = useUser();
+
+  useEffect(() => {
+  if (!phone) {
+    router.replace("/"); // Redirect to login if phone is missing
+  }
+}, [phone]);
+
   const [activeTab, setActiveTab] = useState('Home');
   const [paceIndex, setPaceIndex] = useState(0);
 
@@ -49,14 +57,22 @@ export default function DashboardScreen() {
       chartColor: "#dc2626", // Red
     };
   }
+  
+  const handleHistory =()=>
+    router.push('/Tabs/history')
+  
+  const handleSettings =()=>
+    router.push('/Tabs/settings')
+  
+    const handleSetting =()=>
+        router.push('/Tabs/profile')
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#101622" />
       <Stack.Screen options={{ headerShown: false }} />
-      {/*<View style={styles.TopCard}>*/}
-        {/* Header Area Background */}
-        <View style={styles.topCard}>     
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          {/* Header Area Background */}
           <View style={styles.headerBackground}>
             {/* Top Navigation */}
             <View style={styles.topNav}>
@@ -85,126 +101,123 @@ export default function DashboardScreen() {
             </View>
           </View>
 
-          <ScrollView style={styles.scrollContent}>
-            {/* Main Usage Card */}
-            <View style={styles.mainCard}>
-              {/* Circular Chart Placeholder */}
-              <View style={styles.chartContainer}>
-                <View style={[styles.circleOuter, { borderColor: paceConfig.chartColor }]}>
-                  <View style={styles.circleInner}>
-                    <Text style={styles.circleTextMain}>{paceConfig.percent}</Text>
-                  </View>
+          {/* Main Usage Card */}
+          <View style={styles.mainCard}>
+            {/* Circular Chart Placeholder */}
+            <View style={styles.chartContainer}>
+              <View style={[styles.circleOuter, { borderColor: paceConfig.chartColor }]}>
+                <View style={styles.circleInner}>
+                  <Text style={styles.circleTextMain}>{paceConfig.percent}</Text>
                 </View>
               </View>
-
-              {/* Stats Row */}
-              <View style={styles.statsRow}>
-                <StatItem
-                  icon="keyboard-double-arrow-up"
-                  iconColor="#16a34a"
-                  iconBgColor="#dcfce7"
-                  label="Total Used"
-                  value="7 GB"
-                  subValue="OUT OF 14 GB"
-                />
-                <StatItem
-                  icon="schedule"
-                  iconColor="#1d4ed8"
-                  iconBgColor="#dbeafe"
-                  label="Predicted"
-                  value="8hrs"
-                  subValue="LEFT"
-                />
-                <StatItem
-                  icon="trending-up"
-                  iconColor="#1d4ed8"
-                  iconBgColor="#dbeafe"
-                  label="Daily Avg"
-                  value="1.5 GB"
-                  subValue="PER DAY"
-                />
-              </View>
-
-              {/* Usage Pace Button - Interactive */}
-              <TouchableOpacity
-                style={[styles.paceButton, { backgroundColor: paceConfig.buttonColor, shadowColor: paceConfig.buttonColor }]}
-                onPress={togglePace}
-              >
-                <MaterialIcons name="calendar-today" size={20} color="white" />
-                <Text style={styles.paceButtonText}>
-                  {paceConfig.text}
-                </Text>
-              </TouchableOpacity>
             </View>
 
-            {/* Bottom Small Cards */}
-            <View style={styles.smallCardsRow}>
-              <SmallCard title="Top Usage:">
-                <View style={styles.topUsageContent}>
-                  <View style={styles.facebookIcon}>
-                    <FontAwesome5 name="facebook-f" size={24} color="white" />
-                  </View>
-                  <View>
-                    <Text style={styles.facebookText}>Facebook</Text>
-                    <Text style={styles.facebookSubText}>Total Used</Text>
-                    <Text style={styles.facebookSubTextInfo}>5GB</Text>
-                  </View>
-                </View>
-              </SmallCard>
-
-              <SmallCard title="Consumption:">
-                <View style={styles.consumptionContent}>
-                  {/* Simple Bar Chart UI Mockup */}
-                  <View style={styles.barsContainer}>
-                    <View style={[styles.bar, { height: 20 }]} />
-                    <View style={[styles.bar, { height: 35 }]} />
-                    <View style={[styles.bar, { height: 25 }]} />
-                    <View style={[styles.bar, { height: 50 }]} />
-                    <View style={[styles.bar, { height: 30 }]} />
-                  </View>
-                  <View style={styles.consumptionInfo}>
-                    <Text style={styles.consumptionRate}>250mb</Text>
-                    <Text style={styles.consumptionRateLabel}>per min</Text>
-                  </View>
-                </View>
-                <TouchableOpacity style={styles.seeDetailsBtn}>
-                  <Text style={styles.seeDetailsText}>SEE DETAILS</Text>
-                </TouchableOpacity>
-              </SmallCard>
-            </View>
-          </ScrollView>
-
-          {/* Bottom Navigation */}
-          <View style={styles.bottomNavContainer}>
-            <View style={styles.bottomNavWrapper}>
-              <BottomNavItem
-                iconName="home"
-                label="HOME"
-                isActive={activeTab === 'Home'}
-                onPress={() => setActiveTab('Home')}
+            {/* Stats Row */}
+            <View style={styles.statsRow}>
+              <StatItem
+                icon="keyboard-double-arrow-up"
+                iconColor="#16a34a"
+                iconBgColor="#dcfce7"
+                label="Total Used"
+                value="7 GB"
+                subValue="OUT OF 14 GB"
               />
-              <BottomNavItem
-                iconName="history"
-                label="HISTORY"
-                isActive={activeTab === 'History'}
-                onPress={() => router.push({ pathname: '/Tabs/history', params: { phone } })}
+              <StatItem
+                icon="schedule"
+                iconColor="#1d4ed8"
+                iconBgColor="#dbeafe"
+                label="Predicted"
+                value="8hrs"
+                subValue="LEFT"
               />
-              <BottomNavItem
-                iconName="settings"
-                label="SETTINGS"
-                isActive={activeTab === 'Settings'}
-                onPress={() => router.push({ pathname: '/Tabs/settings', params: { phone } })}
-              />
-              <BottomNavItem
-                iconName="person-outline"
-                label="PROFILE"
-                isActive={activeTab === 'Profile'}
-                onPress={() => router.push({ pathname: '/Tabs/profile', params: { phone } })}
+              <StatItem
+                icon="trending-up"
+                iconColor="#1d4ed8"
+                iconBgColor="#dbeafe"
+                label="Daily Avg"
+                value="1.5 GB"
+                subValue="PER DAY"
               />
             </View>
+
+            {/* Usage Pace Button - Interactive */}
+            <TouchableOpacity
+              style={[styles.paceButton, { backgroundColor: paceConfig.buttonColor, shadowColor: paceConfig.buttonColor }]}
+              onPress={togglePace}
+            >
+              <MaterialIcons name="calendar-today" size={20} color="white" />
+              <Text style={styles.paceButtonText}>
+                {paceConfig.text}
+              </Text>
+            </TouchableOpacity>
           </View>
+
+          {/* Bottom Small Cards */}
+          <View style={styles.smallCardsRow}>
+            <SmallCard title="Top Usage:">
+              <View style={styles.topUsageContent}>
+                <View style={styles.facebookIcon}>
+                  <FontAwesome5 name="facebook-f" size={24} color="white" />
+                </View>
+                <View>
+                  <Text style={styles.facebookText}>Facebook</Text>
+                  <Text style={styles.facebookSubText}>Total Used</Text>
+                  <Text style={styles.facebookSubTextInfo}>5GB</Text>
+                </View>
+              </View>
+            </SmallCard>
+
+            <SmallCard title="Consumption:">
+              <View style={styles.consumptionContent}>
+                {/* Simple Bar Chart UI Mockup */}
+                <View style={styles.barsContainer}>
+                  <View style={[styles.bar, { height: 20 }]} />
+                  <View style={[styles.bar, { height: 35 }]} />
+                  <View style={[styles.bar, { height: 25 }]} />
+                  <View style={[styles.bar, { height: 50 }]} />
+                  <View style={[styles.bar, { height: 30 }]} />
+                </View>
+                <View style={styles.consumptionInfo}>
+                  <Text style={styles.consumptionRate}>250mb</Text>
+                  <Text style={styles.consumptionRateLabel}>per min</Text>
+                </View>
+              </View>
+              <TouchableOpacity style={styles.seeDetailsBtn}>
+                <Text style={styles.seeDetailsText}>SEE DETAILS</Text>
+              </TouchableOpacity>
+            </SmallCard>
+          </View>
+      </ScrollView>
+
+      {/* Bottom Navigation */}
+      <View style={styles.bottomNavContainer}>
+        <View style={styles.bottomNavWrapper}>
+          <BottomNavItem
+            iconName="home"
+            label="HOME"
+            isActive={activeTab === 'Home'}
+            onPress={() => setActiveTab('Home')}
+          />
+          <BottomNavItem
+            iconName="history"
+            label="HISTORY"
+            isActive={activeTab === 'History'}
+            onPress={handleHistory}
+          />
+          <BottomNavItem
+            iconName="settings"
+            label="SETTINGS"
+            isActive={activeTab === 'Settings'}
+            onPress={handleSettings}
+          />
+          <BottomNavItem
+            iconName="person-outline"
+            label="PROFILE"
+            isActive={activeTab === 'Profile'}
+            onPress={handleSetting}
+          />
         </View>
-      {/*</View>*/}
+      </View>
     </SafeAreaView>
   );
 }
@@ -214,25 +227,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#e2e8f0', // Light slate blue/gray background match
   },
-  topCard:{
-    flexGrow: 1,
-    justifyContent: "center",
-    width: 500,
-    marginTop:"1%",
-    maxHeight: "95%",
-    alignSelf: "center",
-    backgroundColor: "rgba(10, 16, 22, 0.1)",
-    borderWidth: 2,
-    borderColor: "rgba(184, 184, 185, 0.3)",
-    borderRadius: 30,
-     shadowColor: "#1e3a8a", // blue-900
-  },
   headerBackground: {
     backgroundColor: '#101622',
     paddingTop: 50, // accommodate status bar roughly
     paddingHorizontal: 20,
     paddingBottom: 80,
-    borderRadius: 30,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
     position: 'absolute',
     top: 0,
     left: 0,
@@ -313,7 +314,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 190, // push down past the static header text to prevent overlap
     paddingHorizontal: 20,
-    paddingBottom: 80, // accommodate bottom nav
+    paddingBottom: 100, // accommodate bottom nav
   },
   mainCard: {
     backgroundColor: 'white',
@@ -463,7 +464,7 @@ const styles = StyleSheet.create({
   },
   bottomNavContainer: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 30,
     left: 20,
     right: 20,
     alignItems: 'center',
@@ -475,7 +476,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 20,
     justifyContent: 'space-between',
-    width: '60%',
+    width: '100%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.1,

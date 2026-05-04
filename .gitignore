@@ -2,9 +2,9 @@
 
 # dependencies
 node_modules/
+.env
 
 # Expo
-.expo/
 dist/
 web-build/
 expo-env.d.ts
@@ -31,6 +31,7 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
 .env*.local
 
 # typescript
@@ -41,3 +42,19 @@ app-example
 # generated native folders
 /ios
 /android
+
+# Expo internal folders
+.expo/
+*.local
+
+# SQLite (since DATAra utilizes local storage)
+*.db
+*.sqlite
+*.sqlite3
+
+# Python leftovers (from the old integrated structure)
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+ENV/

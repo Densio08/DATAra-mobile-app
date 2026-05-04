@@ -12,8 +12,12 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Alert,
+  Platform,
 } from "react-native";
-
+import { useUser } from "../context/UserContext";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from "../constants/Config";
 
 // Get screen dimensions for background positioning
 const { width, height } = Dimensions.get("window");
@@ -23,34 +27,62 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = () => {
-  if (!phoneNumber.trim() || !password.trim()) {
-    alert("Please fill in all fields.");
-    return;
-  }
-  // This looks for only digits. You can adjust the length (e.g., {10,11}) 
-  const phoneRegex = /^[0-9]+$/; 
-  
-  if (!phoneRegex.test(phoneNumber)) {
-    alert("Phone number must contain only numbers.");
-    return;
-  }
+  const { setPhone } = useUser();
 
-  if (phoneNumber.length != 11) {
-    alert("Please enter a valid phone number.");
-    return;
-  }
+  const handleLogin = async () => {
+    // 1. Validation Logic
+    if (!phoneNumber.trim() || !password.trim()) {
+      if (Platform.OS === 'web') window.alert("Please fill in all fields.");
+      else Alert.alert("Error", "Please fill in all fields.");
+      return;
+    }
 
-  // Success!
-  router.push({
-    pathname: "/Tabs/dashboard",
-    params: { phone: phoneNumber },
-  } as any);
-};
- 
+    if (phoneNumber.length !== 11) {
+      if (Platform.OS === 'web') window.alert("Please enter a valid 11-digit phone number.");
+      else Alert.alert("Error", "Please enter a valid 11-digit phone number.");
+      return;
+    }
+
+    try {
+      // 2. API Call[cite: 1]
+      const response = await fetch(`${API_BASE_URL}/api/login/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: phoneNumber,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // 3. Success Handling[cite: 1]
+        setPhone(phoneNumber); // Set global state[cite: 1]
+        await AsyncStorage.setItem('userToken', data.token);
+        
+        // Ensure the path matches your app/Tabs/dashboard.tsx structure[cite: 1]
+        router.replace("/Tabs/dashboard"); 
+      } else {
+        // 4. Handle 401 Unauthorized
+        const errorMsg = data.error || "Invalid phone number or password.";
+        if (Platform.OS === 'web') window.alert(errorMsg);
+        else Alert.alert("Login Failed", errorMsg);
+      }
+    } catch (error: any) {
+      // 5. Network Error[cite: 1]
+      console.error("Login Error:", error);
+      if (Platform.OS === 'web') window.alert("Cannot reach server. Verify your IP in .env.");
+      else Alert.alert("Network Error", "Cannot reach server. Verify your IP in .env.");
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#101622" />
+
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Status Bar Mockup (Optional, but keeping consistent with design if desired, though real StatusBar is better) */}
@@ -79,12 +111,11 @@ export default function LoginScreen() {
                 </View>
                 <TextInput
                   style={styles.input}
-                  placeholder="09 012 345 6789"
+                  placeholder="+63 912 345 6789"
                   placeholderTextColor="#64748b"
                   value={phoneNumber}
                   onChangeText={setPhoneNumber}
                   keyboardType="phone-pad"
-                  autoCapitalize="none"
                 />
               </View>
             </View>
@@ -156,7 +187,7 @@ export default function LoginScreen() {
           {/* Footer */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>
-              Don't have an account?{" "}
+              Don't have an account? {" "}
               <Link href="../register" asChild>
                 <Text style={styles.signUpText}>Sign Up</Text>
               </Link>
@@ -175,17 +206,8 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    marginTop: "5%",
-    paddingTop: "2%",
+    paddingHorizontal: 24,
     justifyContent: "center",
-    width: 500,
-    Height: "80%",
-    alignSelf: "center",
-    backgroundColor: "rgba(10, 16, 22, 0.1)",
-    borderWidth: 2,
-    borderColor: "rgba(184, 184, 185, 0.3)",
-    borderRadius: 30,
-     shadowColor: "#1e3a8a", // blue-900
   },
   contentContainer: {
     paddingVertical: 32,
@@ -199,6 +221,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 25,
     elevation: 10,
+
   },
 
   logoSection: {
@@ -243,13 +266,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   formContainer: {
-    width: 350,
+    width: "100%",
     gap: 20,
-    borderRadius: 20,
-    paddingVertical: 25,
-    paddingHorizontal: 20,
-    justifyContent: "center",
-    alignSelf: "center",
   },
   inputGroup: {
     gap: 6,
